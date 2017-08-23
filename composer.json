@@ -1,13 +1,13 @@
 {
     "name": "GeoPal PHP Client",
     "description": "GeoPal PHP Client to work with the GeoPal API more details http://www.geopalsolutions.com/",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "support": {
         "email": "support@geopal-solutions.com"
     },
     "require": {
         "php": ">=5.3.3",
-        "guzzle/guzzle": "3.7.*@dev"
+	"guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*"
