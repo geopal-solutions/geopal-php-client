@@ -3,13 +3,14 @@ namespace Geopal;
 
 use Geopal\Http\Client;
 use Geopal\Exceptions\GeopalException;
+use Guzzle\Http\Message\Response;
 
 /**
  * Class Geopal
  *
  * @package Geopal
  *
- * @method mixed createAndAssignJob($templateId, array $params)
+ * @method mixed createAndAssignJob($templateId, array $params = [])
  * @method mixed createJob($templateId, array $params)
  * @method mixed assignJob(\DateTime $startDateTime, $assignedToEmployeeId)
  * @method mixed reassignJob($jobId, $employeeReassignedToId, \DateTime $startDateTime)
@@ -62,7 +63,7 @@ class Geopal
     /**
      * @param $array
      * @param $key
-     * @return mixed
+     * @return array|Response
      * @throws Exceptions\GeopalException
      */
     protected function checkPropertyAndReturn($array, $key)
@@ -84,7 +85,6 @@ class Geopal
             throw new GeopalException('Invalid data or key not found');
         }
     }
-
 
     /**
      * @param  $client
@@ -267,7 +267,7 @@ class Geopal
      * @param string $method HTTP method
      * @param string $endpoint Geopal API endpoint
      * @param mixed $params
-     * @return mixed
+     * @return array|Response
      */
     public function apiEndpoint($method, $endpoint, $params, $subset = '_no-property_')
     {
@@ -383,7 +383,11 @@ class Geopal
             unset($params['_arrayParams']);
             $params = array_merge($params, $arrayParams);
         }
-        $response = $this->client->{$method['verb']}($method['endpoint'], $params)->json();
+        /**
+         * @var \GuzzleHttp\Psr7\Response $response
+         */
+        $response = $this->client->{$method['verb']}($method['endpoint'], $params);
+        $response = json_decode($response->getBody());
         $result = $this->checkPropertyAndReturn($response, $method['property']);
 
         return $result;

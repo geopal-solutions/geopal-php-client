@@ -2,11 +2,10 @@
 
 namespace Geopal\Http;
 
-use Geopal\Http\Client;
 use GuzzleHttp\Client as GuzzleClient;
-use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Psr7\Response;
 
-class GeopalApiClient
+class Client
 {
     /**
      * @var int
@@ -47,7 +46,7 @@ class GeopalApiClient
     /**
      * @param $uri
      * @param array $params
-     * @return ResponseInterface
+     * @return Response
      */
     public function get($uri, $params = array())
     {
@@ -58,7 +57,7 @@ class GeopalApiClient
     /**
      * @param $uri
      * @param array $params
-     * @return ResponseInterface
+     * @return Response
      */
     public function post($uri, $params = array())
     {
@@ -69,7 +68,7 @@ class GeopalApiClient
     /**
      * @param $uri
      * @param array $params
-     * @return ResponseInterface
+     * @return Response
      */
     public function put($uri, $params = array())
     {
