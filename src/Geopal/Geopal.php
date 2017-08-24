@@ -54,9 +54,7 @@ class Geopal
      */
     public function __construct($employeeId, $privateKey, $onlyExceptions = false)
     {
-        $this->setEmployeeId($employeeId);
-        $this->setPrivateKey($privateKey);
-        $this->client = new Client($this->getEmployeeId(), $this->getPrivateKey());
+        $this->attachClient($employeeId, $privateKey);
         $this->onlyExceptions = $onlyExceptions;
     }
 
@@ -86,6 +84,16 @@ class Geopal
         }
     }
 
+    /**
+     * @param int $employeeId
+     * @param string $privateKey
+     */
+    public function attachClient($employeeId, $privateKey)
+    {
+        $this->setEmployeeId($employeeId);
+        $this->setPrivateKey($privateKey);
+        $this->client = new Client($this->getEmployeeId(), $this->getPrivateKey());
+    }
     /**
      * @param  $client
      */
