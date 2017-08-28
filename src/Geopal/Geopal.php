@@ -279,7 +279,8 @@ class Geopal
      */
     public function apiEndpoint($method, $endpoint, $params, $subset = '_no-property_')
     {
-        $response = $this->client->{$method}($endpoint, $params)->json();
+        $response = $this->client->{$method}($endpoint, $params);
+        $response = json_decode($response->getBody(), true);
         $result = $this->checkPropertyAndReturn($response, $subset);
 
         return $result;
@@ -395,7 +396,7 @@ class Geopal
          * @var \GuzzleHttp\Psr7\Response $response
          */
         $response = $this->client->{$method['verb']}($method['endpoint'], $params);
-        $response = json_decode($response->getBody());
+        $response = json_decode($response->getBody(, true);
         $result = $this->checkPropertyAndReturn($response, $method['property']);
 
         return $result;

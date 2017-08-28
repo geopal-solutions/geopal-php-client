@@ -51,7 +51,8 @@ class Client
     public function get($uri, $params = array())
     {
         $options = ['headers' => $this->getHeaders('get', $uri)];
-        return $this->guzzleClient->get($uri . '?' . http_build_query($params), $options);
+        $options['query'] = $params;
+        return $this->guzzleClient->get($uri, $options);
     }
 
     /**
@@ -62,7 +63,8 @@ class Client
     public function post($uri, $params = array())
     {
         $options = ['headers' => $this->getHeaders('post', $uri)];
-        return $this->guzzleClient->post($uri, $options, $params);
+        $options['form_params'] = $params;
+        return $this->guzzleClient->post($uri, $options);
     }
 
     /**
