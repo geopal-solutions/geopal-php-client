@@ -396,7 +396,7 @@ class Geopal
          * @var \GuzzleHttp\Psr7\Response $response
          */
         $response = $this->client->{$method['verb']}($method['endpoint'], $params);
-        $response = json_decode($response->getBody(, true);
+        $response = json_decode($response->getBody(), true);
         $result = $this->checkPropertyAndReturn($response, $method['property']);
 
         return $result;
