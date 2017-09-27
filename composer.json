@@ -2,6 +2,7 @@
     "name": "geopal-solutions/geopal-php-client",
     "description": "GeoPal PHP Client to work with the GeoPal API more details http://www.geopalsolutions.com/",
     "version": "0.1.8",
+    "license": "MIT",
     "support": {
         "email": "support@geopal-solutions.com"
     },
