@@ -2,7 +2,8 @@
 
 namespace Geopal\Http;
 
-use Guzzle\Http\Client as GuzzleClient;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
 
 class Client
 {
@@ -17,7 +18,7 @@ class Client
     private $privateKey;
 
     /**
-     * @var \Guzzle\Http\Client
+     * @var Client
      */
     private $guzzleClient;
 
@@ -29,14 +30,14 @@ class Client
     /**
      * @param $employeeId
      * @param $privateKey
-     * @param null|\Guzzle\Http\Client $guzzleClient
+     * @param null|GuzzleClient $guzzleClient
      */
     public function __construct($employeeId, $privateKey, $guzzleClient = null)
     {
         $this->employeeId = $employeeId;
         $this->privateKey = $privateKey;
         if (is_null($guzzleClient)) {
-            $this->guzzleClient = new GuzzleClient(self::API_URL);
+            $this->guzzleClient = new GuzzleClient(['base_uri' => self::API_URL]);
         } else {
             $this->guzzleClient = $guzzleClient;
         }
@@ -45,31 +46,35 @@ class Client
     /**
      * @param $uri
      * @param array $params
-     * @return \Guzzle\Http\Message\Response
+     * @return Response
      */
     public function get($uri, $params = array())
     {
-        return $this->guzzleClient->get($uri . '?' . http_build_query($params), $this->getHeaders('get', $uri))->send();
+        $options = ['headers' => $this->getHeaders('get', $uri)];
+        $options['query'] = $params;
+        return $this->guzzleClient->get($uri, $options);
     }
 
     /**
      * @param $uri
      * @param array $params
-     * @return \Guzzle\Http\Message\Response
+     * @return Response
      */
     public function post($uri, $params = array())
     {
-        return $this->guzzleClient->post($uri, $this->getHeaders('post', $uri), $params)->send();
+        $options = ['headers' => $this->getHeaders('post', $uri)];
+        $options['form_params'] = $params;
+        return $this->guzzleClient->post($uri, $options);
     }
 
     /**
      * @param $uri
      * @param array $params
-     * @return \Guzzle\Http\Message\Response
+     * @return Response
      */
     public function put($uri, $params = array())
     {
-        return $this->guzzleClient->put($uri, $this->getHeaders('put', $uri), $params)->send();
+        return $this->guzzleClient->put($uri, $this->getHeaders('put', $uri), $params);
     }
 
     /**

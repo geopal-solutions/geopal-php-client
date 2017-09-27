@@ -3,9 +3,12 @@ namespace Geopal\Tests;
 
 use Geopal\Geopal as GeoPal;
 use Geopal\Http\Client as GeoPalClient;
-use Guzzle\Http\Client as GuzzleClient;
-use Guzzle\Plugin\Mock\MockPlugin;
-use Guzzle\Http\Message\Response;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+
+date_default_timezone_set('Europe/Dublin');
 
 /**
  * @todo    Fix Mock Data
@@ -150,10 +153,15 @@ class GeopalTest extends \PHPUnit_Framework_TestCase
     {
         $responseData = json_encode($data);
 
-        $guzzleClient = new GuzzleClient('http://www.test.com/');
-        $mock = new MockPlugin();
-        $mock->addResponse(new Response(200, array(), $responseData));
-        $guzzleClient->addSubscriber($mock);
+        $mock = new MockHandler([
+            new Response(200, array(), $responseData),
+        ]);
+
+        $guzzleClient = new GuzzleClient([
+            'base_uri' => 'http://www.test.com/',
+            'handler'  => HandlerStack::create($mock)
+        ]);
+
         $geopalClient = new GeoPalClient(null, null, $guzzleClient);
 
         $geoPal = new Geopal($this->getEmployeeId(), "");
@@ -162,6 +170,30 @@ class GeopalTest extends \PHPUnit_Framework_TestCase
         return $geoPal;
     }
 
+    /**
+     * tests that an expection is thrown when an invalid method is called
+     * @param array $testData
+     * @dataProvider mockCreateAndAssignJobData
+     * @expectedException \Geopal\Exceptions\GeopalException
+     */
+    public function testNotImplementedMethod(array $testData)
+    {
+        $geoPal = $this->getMockedGeoPalObj($testData);
+
+        $job = $geoPal->notImplemented($this->getTemplateId());
+    }
+    /**
+     * tests that the __call() function handles missing required parameters
+     * @param array $testData
+     * @dataProvider mockCreateAndAssignJobData
+     * @expectedException PHPUnit_Framework_Error
+     */
+    public function testMandatoryParameterError(array $testData)
+    {
+        $geoPal = $this->getMockedGeoPalObj($testData);
+
+        $geoPal->createAndAssignJob();
+    }
     /**
      * tests the create and assign job method returns a valid response and if the data is updated correctly
      * @covers       \Geopal\Geopal::createAndAssignJob
@@ -277,11 +309,13 @@ class GeopalTest extends \PHPUnit_Framework_TestCase
     public function testSetClient()
     {
         $baseUrl = 'http://www.test.com/';
-        $guzzleClient = new GuzzleClient($baseUrl);
+        $guzzleClient = new GuzzleClient([
+            'base_uri' => $baseUrl
+        ]);
         $geopal = new Geopal($this->getEmployeeId(), "");
         $geopal->setClient($guzzleClient);
 
-        $this->assertInstanceOf('\Guzzle\Http\Client', $geopal->getClient());
+        $this->assertInstanceOf('\GuzzleHttp\Client', $geopal->getClient());
         $this->assertTrue($guzzleClient === $geopal->getClient());
     }
 
