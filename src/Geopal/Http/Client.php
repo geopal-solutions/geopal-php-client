@@ -3,7 +3,6 @@
 namespace Geopal\Http;
 
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Psr7\Response;
 
 class Client
 {
@@ -18,26 +17,44 @@ class Client
     private $privateKey;
 
     /**
-     * @var Client
+     * @var GuzzleClient
      */
     private $guzzleClient;
 
     /**
-     * Geopal API Url
+     * Default Geopal API Url
      */
-    const API_URL = 'https://app.geopalsolutions.com/';
+    const DEFAULT_API_URL = 'https://app.geopalsolutions.com/';
+
+    /**
+     * GeoPal API URL
+     * @var null|string
+     */
+    private $apiUrl;
+
+    /**
+     * @var float
+     */
+    private $apiTimeout = 30.0;
 
     /**
      * @param $employeeId
      * @param $privateKey
      * @param null|GuzzleClient $guzzleClient
+     * @param $apiUrl
      */
-    public function __construct($employeeId, $privateKey, $guzzleClient = null)
+    public function __construct($employeeId, $privateKey, $guzzleClient = null, $apiUrl = null)
     {
         $this->employeeId = $employeeId;
         $this->privateKey = $privateKey;
+        $this->apiUrl = is_null($apiUrl) ? self::DEFAULT_API_URL : $apiUrl;
         if (is_null($guzzleClient)) {
-            $this->guzzleClient = new GuzzleClient(['base_uri' => self::API_URL]);
+            $this->guzzleClient = new GuzzleClient([
+                // Base URI is used with relative requests
+                'base_uri' => $this->apiUrl,
+                // You can set any number of default request options.
+                'timeout'  => $this->apiTimeout,
+            ]);
         } else {
             $this->guzzleClient = $guzzleClient;
         }
@@ -50,21 +67,54 @@ class Client
      */
     public function get($uri, $params = array())
     {
-        $options = ['headers' => $this->getHeaders('get', $uri)];
-        $options['query'] = $params;
-        return $this->guzzleClient->get($uri, $options);
+        $response = $this->guzzleClient->request(
+            'GET',
+            $uri . '?' . http_build_query($params),
+            ['headers' => $this->getHeaders('get', $uri)]
+        );
+        return new Response($response);
     }
 
     /**
      * @param $uri
      * @param array $params
+     * @param string|null $file The file path of the file to upload or null
      * @return Response
      */
-    public function post($uri, $params = array())
+    public function post($uri, $params = array(), $file = null)
     {
-        $options = ['headers' => $this->getHeaders('post', $uri)];
-        $options['form_params'] = $params;
-        return $this->guzzleClient->post($uri, $options);
+        if (is_null($file)) {
+            $response = $this->guzzleClient->request(
+                'POST',
+                $uri,
+                [
+                    'headers' => $this->getHeaders('get', $uri),
+                    'form_params' => $params
+                ]
+            );
+        } else {
+            $paramsMultiPart = [];
+            foreach ($params as $paramName => $paramValue) {
+                $paramsMultiPart[] = ['name' => $paramName, 'contents' => $paramValue];
+            }
+            $response = $this->guzzleClient->request(
+                'POST',
+                $uri,
+                [
+                    'headers' => $this->getHeaders('get', $uri),
+                    'multipart' => array_merge(
+                        [
+                            [
+                                'name' => 'file2upload',
+                                'contents' => fopen($file, 'r')
+                            ]
+                        ],
+                        $paramsMultiPart
+                    )
+                ]
+            );
+        }
+        return new Response($response);
     }
 
     /**
@@ -74,7 +124,15 @@ class Client
      */
     public function put($uri, $params = array())
     {
-        return $this->guzzleClient->put($uri, $this->getHeaders('put', $uri), $params);
+        $response = $this->guzzleClient->request(
+            'PUT',
+            $uri,
+            [
+                'headers' => $this->getHeaders('get', $uri),
+                'form_params' => $params
+            ]
+        );
+        return new Response($response);
     }
 
     /**
@@ -85,7 +143,7 @@ class Client
     public function getHeaders($verb, $uri)
     {
         $timestamp = $this->getTimeStamp();
-        $headers = array();
+        $headers = [];
         $headers['GEOPAL_SIGNATURE'] = $this->getSignature($verb, $uri, $timestamp);
         $headers['GEOPAL_TIMESTAMP'] = $timestamp;
         $headers['GEOPAL_EMPLOYEEID'] = $this->employeeId;

@@ -3,3 +3,10 @@
 composer.phar
 vendor/
 composer.lock
+/vendor
+/.vagrant
+phpunit.xml
+Homestead.yaml
+Homestead.json
+after.sh
+aliases

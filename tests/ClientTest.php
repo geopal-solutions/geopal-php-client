@@ -1,13 +1,11 @@
 <?php
 namespace Geopal\Tests;
 
+use Geopal\Http\Client as GeoPalClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Geopal\Http\Client as GeoPalClient;
-
-date_default_timezone_set('Europe/Dublin');
 
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
@@ -25,13 +23,15 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
 
         $mock = new MockHandler([
-            new Response(200, array(), 'test'),
+            new Response(200, [], 'test')
         ]);
-
-        $guzzleClient = new GuzzleClient([
-            'base_uri' => 'http://www.test.com/',
-            'handler'  => HandlerStack::create($mock)
-        ]);
+        $handler = HandlerStack::create($mock);
+        $guzzleClient = new GuzzleClient(
+            [
+                'base_uri' => 'http://www.test.com/',
+                'handler' => $handler
+            ]
+        );
 
         $this->geopalClient = new GeoPalClient(null, null, $guzzleClient);
     }
