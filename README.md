@@ -2,6 +2,11 @@ geopal-php-client
 =================
 
 Change log
+
+2018-08-21
+v1.0.3
+* Fixed bug: generating POST/PUT signatures
+
 2018-01-12
 v1.0.2
 * Upgraded GuzzleHttp to version 6
