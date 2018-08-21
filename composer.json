@@ -8,7 +8,7 @@
         "email": "support@geopal-solutions.com"
     },
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.4",
         "guzzlehttp/guzzle": "~6.0"
     },
     "require-dev": {
