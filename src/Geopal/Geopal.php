@@ -117,6 +117,7 @@ class Geopal
      * @param array $params
      * @return array|bool|float|int|string
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function createAndAssignJob($templateId, array $params = array())
     {
@@ -133,6 +134,7 @@ class Geopal
      * @param array $params
      * @return array|bool|float|int|string
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function createJob($templateId, array $params = array())
     {
@@ -150,6 +152,7 @@ class Geopal
      * @param $assignedToEmployeeId
      * @return array|bool|float|int|string
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function assignJob($jobId, $startDateTime, $assignedToEmployeeId)
     {
@@ -172,6 +175,7 @@ class Geopal
      * @param \DateTime $startDateTime
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function reassignJob($jobId, $employeeReassignedToId, $startDateTime)
     {
@@ -190,6 +194,7 @@ class Geopal
      * @param $jobId
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getJobById($jobId)
     {
@@ -198,10 +203,23 @@ class Geopal
     }
 
     /**
+     * @param $jobIdentifier
+     * @return mixed
+     * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobByIdentifier($jobIdentifier)
+    {
+        $jobs = $this->client->get('api/jobs/getbyidentifier', array('job_identifier' => $jobIdentifier))->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
      * @param $dateTimeFrom
      * @param $dateTimeTo
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getJobsBetweenDateRange($dateTimeFrom, $dateTimeTo)
     {
@@ -215,6 +233,7 @@ class Geopal
     /**
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getEmployeesList()
     {
@@ -226,6 +245,7 @@ class Geopal
      * gets job templates
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getJobTemplates()
     {
@@ -238,6 +258,7 @@ class Geopal
      * @param $templateId
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getJobTemplateById($templateId)
     {
@@ -260,6 +281,7 @@ class Geopal
      * @param bool $webEmployee
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function createEmployee(
         $username,
@@ -298,6 +320,7 @@ class Geopal
      * @param int $updatedOn // This should be a valid unix timestamp or null
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getAllAssets($limit = 10, $page = 0, $updatedOn = null)
     {
@@ -318,6 +341,7 @@ class Geopal
      * @param $identifier
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getAssetByIdentifier($identifier)
     {
@@ -347,6 +371,7 @@ class Geopal
      * @param array $params
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function replaceAsset(
         $identifier,
@@ -406,6 +431,7 @@ class Geopal
      * @param array $customerFields
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function replaceCustomer(
         $identifier,
@@ -467,6 +493,7 @@ class Geopal
      * @param array $params
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function replacePerson(
         $identifier,
@@ -523,6 +550,7 @@ class Geopal
      * @param string $message
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function updateJobStatus($jobId, $newStatusId, $message = '')
     {
@@ -545,6 +573,7 @@ class Geopal
      * @param string $password
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getEmployeeByCredentials($username, $password)
     {
@@ -570,6 +599,7 @@ class Geopal
      * @param array $params
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function updateEmployeeById($id, $username, $password, $firstName, $lastName, $email, $params = array())
     {
@@ -602,6 +632,7 @@ class Geopal
      * @param array $params
      * @return mixed
      * @throws Exceptions\GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function updateEmployeeByIdentifier(
         $identifier,
@@ -635,6 +666,7 @@ class Geopal
      *
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getCompanyFiles()
     {
@@ -651,6 +683,7 @@ class Geopal
      * @param $companyFileId
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getCompanyFile($companyFileId)
     {
@@ -672,6 +705,7 @@ class Geopal
      * @param string $file path to file
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function addCompanyFile($fileName, $fileCategory, $file)
     {
@@ -696,6 +730,7 @@ class Geopal
      * @param null|true $newFile true to update file with uploaded file, null to use original file
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function updateCompanyFile($fileId, $newFileName = null, $newFileCategory = null, $newFile = null)
     {
@@ -717,6 +752,7 @@ class Geopal
      * @param $fileId
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function deleteCompanyFile($fileId)
     {
@@ -733,6 +769,7 @@ class Geopal
      *
      * @param $fileId
      * @return Response
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function downloadCompanyFile($fileId)
     {
@@ -750,6 +787,7 @@ class Geopal
      *
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getTeams()
     {
@@ -767,6 +805,7 @@ class Geopal
      * @param int $teamId
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getTeam($teamId)
     {
@@ -786,6 +825,7 @@ class Geopal
      * @param int[] $templateIds
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function addTeam($teamName, $quickTemplateId, $employeeIds, $templateIds)
     {
@@ -811,6 +851,7 @@ class Geopal
      * @param int[] $templateIds
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function updateTeam($teamId, $teamName, $quickTemplateId, $employeeIds, $templateIds)
     {
@@ -833,6 +874,7 @@ class Geopal
      * @param int $teamId
      * @return mixed
      * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function deleteTeam($teamId)
     {
