@@ -5,6 +5,7 @@ Change log
 
 2018-08-21
 v1.0.3
+* Added new method getJobByIdentifier()
 * Fixed bug: generating POST/PUT signatures
 
 2018-01-12
