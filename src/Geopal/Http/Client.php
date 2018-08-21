@@ -64,6 +64,7 @@ class Client
      * @param $uri
      * @param array $params
      * @return Response
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function get($uri, $params = array())
     {
@@ -80,6 +81,7 @@ class Client
      * @param array $params
      * @param string|null $file The file path of the file to upload or null
      * @return Response
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function post($uri, $params = array(), $file = null)
     {
@@ -88,7 +90,7 @@ class Client
                 'POST',
                 $uri,
                 [
-                    'headers' => $this->getHeaders('get', $uri),
+                    'headers' => $this->getHeaders('post', $uri),
                     'form_params' => $params
                 ]
             );
@@ -101,7 +103,7 @@ class Client
                 'POST',
                 $uri,
                 [
-                    'headers' => $this->getHeaders('get', $uri),
+                    'headers' => $this->getHeaders('post', $uri),
                     'multipart' => array_merge(
                         [
                             [
@@ -121,6 +123,7 @@ class Client
      * @param $uri
      * @param array $params
      * @return Response
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function put($uri, $params = array())
     {
@@ -128,7 +131,7 @@ class Client
             'PUT',
             $uri,
             [
-                'headers' => $this->getHeaders('get', $uri),
+                'headers' => $this->getHeaders('put', $uri),
                 'form_params' => $params
             ]
         );
