@@ -112,6 +112,22 @@ class Geopal
         return $this->privateKey;
     }
 
+     /**
+     * Gets a list of job status
+     *
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobStatuses()
+    {
+        statuses = $this->client->get(
+            'api/jobs/statuses',
+            array()
+        )->json();
+        return $this->checkPropertyAndReturn(statuses, 'job_statuses');
+    }
+    
     /**
      * @param $templateId
      * @param array $params
