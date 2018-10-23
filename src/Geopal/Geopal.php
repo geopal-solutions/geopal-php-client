@@ -113,7 +113,9 @@ class Geopal
     }
 
     /**
-     * @param $templateId
+     * Allows creating a job in GeoPal
+     *
+     * @param integer $templateId The ID of the job template to create the job from
      * @param array $params
      * @return mixed
      * @throws GeopalException
@@ -160,7 +162,7 @@ class Geopal
     public function assignJob($jobId, $startDateTime, $assignedToEmployeeId)
     {
         $job = $this->client->post(
-            'api/jobs/reassign',
+            'api/jobs/assign',
             array(
                 'job_id' => $jobId,
                 'start_date_time' => $startDateTime->format('Y-m-d H:i:s'),
@@ -264,6 +266,51 @@ class Geopal
                 'job_template_id' => $jobTemplateId,
                 'type' => $type
                 )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'jobs');
+    }
+
+    /**
+     * Allows you to assign another existing Address in GeoPal to a Job.
+     * If passed doesn't exist yet it will create new one otherwise it will update contact entry using passed address arguments. Address arguments have prefix “address_”.
+     * IMPORTANT: Either address_id or address_identifier are required.
+     *
+     * @param integer $jobId The id of the job.
+     * @param array $address Set of the address information
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobAddress($jobId, $address = array())
+    {
+        $jobs = $this->client->post(
+            'api/jobs/changeaddress',
+            array(
+                'job_id' => $jobId,
+            ) + $address
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * @param integer|null $justJobIds {optional} If set to 1 will just return job ids, otherwise it will return job ids and completed and synced date time
+     * @param \DateTime $syncCompleteDateTime {optional} Date Time (YYYY-mm-dd HH:mi:ss), if set will show records greater than or equal to the sync and complete date time
+     * @param integer $page {optional} The current page for the result set, defaults to 1
+     * @param integer $limit {optional} The total number of job returned, defaults to 50
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobsOrderedBySyncAndComplete($justJobIds = null, $syncCompleteDateTime = null, $page = 1, $limit = 50)
+    {
+        $jobs = $this->client->get(
+            'api/jobsearch/orderedsyncandcomplete',
+            array(
+                'just_job_ids' => $justJobIds,
+                'sync_complete_date_time' => ($syncCompleteDateTime instanceof \DateTime) ? $syncCompleteDateTime->format('Y-m-d H:i:s') : '',
+                'page' => $page,
+                'limit' => $limit
+            )
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'jobs');
     }
