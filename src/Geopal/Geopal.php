@@ -158,7 +158,7 @@ class Geopal
     public function assignJob($jobId, $startDateTime, $assignedToEmployeeId)
     {
         $job = $this->client->post(
-            'api/jobs/assign',
+            'api/jobs/reassign',
             array(
                 'job_id' => $jobId,
                 'start_date_time' => $startDateTime->format('Y-m-d H:i:s'),
@@ -171,9 +171,9 @@ class Geopal
     /**
      * Reassigns a job to another employee
      *
-     * @param $jobId
-     * @param $employeeReassignedToId
-     * @param \DateTime $startDateTime
+     * @param integer $jobId The ID of the target job
+     * @param integer $employeeReassignedToId The ID of the employee to assign the job to
+     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -186,6 +186,25 @@ class Geopal
                 'job_id' => $jobId,
                 'employee_reassigned_to_id' => $employeeReassignedToId,
                 'start_date_time' => $startDateTime->format('Y-m-d H:i:s')
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($job, 'job');
+    }
+
+    /**
+     * Allows for unassigning of an employee from a job.
+     *
+     * @param integer $jobId The ID of the target job
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function unassignJob($jobId)
+    {
+        $job = $this->client->post(
+            'api/jobs/unassign',
+            array(
+                'job_id' => $jobId
             )
         )->json();
         return $this->checkPropertyAndReturn($job, 'job');

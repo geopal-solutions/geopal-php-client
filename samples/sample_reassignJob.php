@@ -17,17 +17,18 @@ $client = new \Geopal\Geopal($employeeId, $privateKey);
 $jobId = $params['jobId'];
 
 /**
+ * The ID of the employee to assign the job to
+ * @var integer
+ */
+$employeeReassignedToId = $params['employeeId'];
+
+/**
  * Start date and time for the job
  * @var \DateTime
  */
 $startDateTime = $params['startDateTime'];
 
-/**
- * The ID of the employee to assign the job to
- * @var integer
- */
-$employeeId = $params['employeeId'];
 
-$result = $client->assignJob($jobId, $startDateTime, $employeeId);
+$result = $client->reassignJob($jobId, $employeeReassignedToId, $startDateTime);
 
 print_r($result);

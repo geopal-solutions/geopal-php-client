@@ -1,6 +1,6 @@
 <?php
 /**
- * A script to test the Geopal's api/jobs/getbyidentifier
+ * A script to test the Geopal's api/jobs/status
  *
  * @author Tarini Coll
  * Date: 23/10/2018
