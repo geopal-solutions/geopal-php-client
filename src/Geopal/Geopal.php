@@ -281,7 +281,7 @@ class Geopal
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function updateJobAddress($jobId, $address = array())
+    public function changeJobAddress($jobId, $address = array())
     {
         $jobs = $this->client->post(
             'api/jobs/changeaddress',
@@ -302,7 +302,7 @@ class Geopal
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function updateJobAsset($jobId, $assetIdentifier, $updateOn = null)
+    public function changeJobAsset($jobId, $assetIdentifier, $updateOn = null)
     {
         $jobs = $this->client->post(
             'api/jobs/changeasset',
@@ -325,7 +325,7 @@ class Geopal
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function updateJobPerson($jobId, $person)
+    public function changeJobPerson($jobId, $person)
     {
         $jobs = $this->client->post(
             'api/jobs/changeperson',
@@ -346,13 +346,44 @@ class Geopal
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function updateJobCustomer($jobId, $customer)
+    public function changeJobCustomer($jobId, $customer)
     {
         $jobs = $this->client->post(
             'api/jobs/changecustomer',
             array(
                 'job_id' => $jobId
             ) + $customer
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * Allows you to change the Status, Address, Asset, Contact and Customer in one go.
+     *
+     * @param int $jobId The id of the job.
+     * @param int $jobStatusId The ID of the job status to set the job to.
+     * @param int $addressId The id of the address to be assigned.
+     * @param int $assetIdentifier The identifier of the asset to be assigned.
+     * @param int $personId The identifier of the contact person to be assigned.
+     * @param int $customerId The identifier of the customer entry to be assigned.
+     * @param null|string|\DateTime $updatedOn A Unix timestamp of the date of the asset change
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function changeJobAll($jobId, $jobStatusId, $addressId, $assetIdentifier, $personId, $customerId, $updatedOn = null)
+    {
+        $jobs = $this->client->post(
+            'api/jobs/changeall',
+            array(
+                'job_id' => $jobId,
+                'job_status_id' => $jobStatusId,
+                'address_id' => $addressId,
+                'asset_identifier' => $assetIdentifier,
+                'person_id' => $personId,
+                'customer_id' => $customerId,
+                'updated_on' => is_null($updatedOn) ? time() : (($updatedOn instanceof \DateTime) ? $updatedOn->format('Y-m-d H:i:s') : $updatedOn)
+            )
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'job');
     }
@@ -377,6 +408,58 @@ class Geopal
                 'sync_complete_date_time' => ($syncCompleteDateTime instanceof \DateTime) ? $syncCompleteDateTime->format('Y-m-d H:i:s') : '',
                 'page' => $page,
                 'limit' => $limit
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'jobs');
+    }
+
+    /**
+     * Allows you to update a job workflow step
+     *
+     * @param int $jobId The id of the job.
+     * @param int $templateWorkflowId The id of the template workflow field
+     * @param null|\DateTime $doneAt The unix time the step was done at. Defaults to server time
+     * @param null $actionValueEntered The data entered for the step.
+     * @param null|bool $forceJobResync A boolean value (true/false, 1/0) to indicate if the job updated_on field should be set to current server time to force it to be re-synced at the next mobile sync event. Defaults to false.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobWorkflow($jobId, $templateWorkflowId, $doneAt = null, $actionValueEntered = null, $forceJobResync = false)
+    {
+        $jobs = $this->client->post(
+            'api/jobworkflows/update',
+            array(
+                'job_id' => $jobId,
+                'template_workflow_id' => $templateWorkflowId,
+                'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time(),
+                'action_value_entered' => $actionValueEntered,
+                'force_job_resync' => $forceJobResync
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'jobs');
+    }
+
+    /**
+     * Allows you to update a job workflow file
+     *
+     * @param int $jobId The id of the job.
+     * @param int $templateWorkflowId The id of the template workflow field
+     * @param array $file2Upload Contains the file uploaded. Max is 8MB
+     * @param null|\DateTime $doneAt The unix time the step was done at. Defaults to server time
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobWorkflowFile($jobId, $templateWorkflowId, $file2Upload, $doneAt = null)
+    {
+        $jobs = $this->client->post(
+            'api/jobworkflows/file',
+            array(
+                'job_id' => $jobId,
+                'template_workflow_id' => $templateWorkflowId,
+                'file2upload' => $file2Upload,
+                'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time()
             )
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'jobs');

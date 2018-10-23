@@ -1,6 +1,6 @@
 <?php
 /**
- * A script to test the Geopal's api/jobs/reassign
+ * A script to test the Geopal's api/jobs/assign
  *
  * @author Tarini Coll
  * Date: 23/10/2018

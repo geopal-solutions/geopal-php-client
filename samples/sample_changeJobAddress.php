@@ -20,7 +20,7 @@ $jobId = $params['jobId'];
  * If passed doesn't exist yet it will create new one otherwise it will update contact entry using passed address arguments. Address arguments have prefix “address_”.
  * IMPORTANT: Either address_id or address_identifier are required.
  *
- * @var integer
+ * @var array
  */
 $address = [
     'address_id' => '',
@@ -34,6 +34,6 @@ $address = [
     'updated_on' => ''
 ];
 
-$result = $client->updateJobAddress($jobId, $address);
+$result = $client->changeJobAddress($jobId, $address);
 
 print_r($result);
