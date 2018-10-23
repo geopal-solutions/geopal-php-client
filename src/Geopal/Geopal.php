@@ -1225,6 +1225,42 @@ class Geopal
     }
 
     /**
+     * Get all employee LDAP settings.
+     *
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeLdapSetting(){
+        $employee = $this->client->get('api/employees/listldap', array())->json();
+        return $this->checkPropertyAndReturn($employee, 'employee_ldap_list');
+    }
+
+    /**
+     * Change an individual employee’s LDAP settings
+     *
+     * @param int $employeeId The employee's Id. Not required if the employee_identifer is provided
+     * @param string $employeeIdentifier The employee's Identifier. Not required if the employee_id is provided
+     * @param bool $ldapEnable A boolean value to indicate if LDAP should be enabled for this user or not.
+     * @param string $ldapUserDn The LDAP user DN to be used when authenticating against the LDAP server configured on the company account.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function changeEmployeeLdapSetting($employeeId, $employeeIdentifier, $ldapEnable = false, $ldapUserDn = ""){
+        $employee = $this->client->post(
+            'api/employees/changeldap',
+            array(
+                'employee_id' => $employeeId,
+                'employee_identifier' => $employeeIdentifier,
+                'ldap_enable' => $ldapEnable,
+                'ldap_user_dn' => $ldapUserDn
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'employee_ldap_list');
+    }
+
+    /**
      * Get route data within a given time period, by an employee's Identifier.
      *
      * @param string $employeeIdentifier The employee's Identifier.
