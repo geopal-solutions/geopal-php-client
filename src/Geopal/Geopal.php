@@ -711,9 +711,9 @@ class Geopal
     /**
      * Gets all assets
      *
-     * @param int $limit
-     * @param int $page
-     * @param null $updatedOn
+     * @param int $limit The amount of assets to be returned per page.
+     * @param int $page The page number to start the listing from.
+     * @param null $updatedOn An optional Unix timestamp.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -731,9 +731,23 @@ class Geopal
     }
 
     /**
+     * Getting an Asset by Id
+     *
+     * @param int $id The ID of the Asset.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getAssetById($id)
+    {
+        $asset = $this->client->get('api/assets/get', array('asset_id' => $id))->json();
+        return $this->checkPropertyAndReturn($asset, 'asset');
+    }
+
+    /**
      * Gets an asset by identifier
      *
-     * @param $identifier
+     * @param string $identifier The identifier of the Asset.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -750,6 +764,8 @@ class Geopal
     }
 
     /**
+     * Updates an existing asset or creates a new one with the details provided.
+     *
      * @param $identifier
      * @param $name
      * @param $assetTemplateId
