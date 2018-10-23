@@ -151,7 +151,7 @@ class Geopal
      * Allows for assigning a job to an employee.
      *
      * @param integer $jobId The ID of the target job
-     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @param \DateTime $startDateTime Start date and time for the job
      * @param integer $assignedToEmployeeId The ID of the employee to assign the job to
      * @return mixed
      * @throws GeopalException
@@ -175,7 +175,7 @@ class Geopal
      *
      * @param integer $jobId The ID of the target job
      * @param integer $employeeReassignedToId The ID of the employee to assign the job to
-     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @param \DateTime $startDateTime Start date and time for the job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -241,17 +241,29 @@ class Geopal
     }
 
     /**
-     * @param $dateTimeFrom
-     * @param $dateTimeTo
+     * Returns a detailed list of Jobs created within the target date range.
+     *
+     * @param string|\DateTime $dateTimeFrom Date and time to list entries from. (YYYY-MM-DD HH:MI:SS)
+     * @param string|\DateTime $dateTimeTo Date and time to list entries to.  (YYYY-MM-DD HH:MI:SS)
+     * @param integer|null $jobStatusId {optional} parameter which allows to filter by job status id
+     * @param integer|null $jobTemplateId {optional} parameter which allows to filter by job template id
+     * @param array|null $type {optional} Can be set to created_on, updated_on or completed_and_synced_date_time, assigned_date_time, defaults to updated_on. Created on is the time the job was created on the server, updated on is the time the job was updated on the server.
+    completed_and_synced_date_time indicates when the job has fully synced and also marked as completed and requires version of geopal app >= 1.18.x
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function getJobsBetweenDateRange($dateTimeFrom, $dateTimeTo)
+    public function getJobsBetweenDateRange($dateTimeFrom, $dateTimeTo, $jobStatusId = null, $jobTemplateId = null, $type = null)
     {
         $jobs = $this->client->get(
             'api/jobsearch/ids',
-            array('date_time_from' => $dateTimeFrom, 'date_time_to' => $dateTimeTo)
+            array(
+                'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : $dateTimeFrom,
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : $dateTimeTo,
+                'job_status_id' => $jobStatusId,
+                'job_template_id' => $jobTemplateId,
+                'type' => $type
+                )
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'jobs');
     }
@@ -283,7 +295,7 @@ class Geopal
     /**
      * Gets job template by id
      *
-     * @param $templateId
+     * @param integer $templateId The ID of the target job template
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -596,7 +608,7 @@ class Geopal
      *
      * @param integer $jobId The ID of the target job
      * @param integer $employeeId The ID of the employee to assign the job to
-     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @param \DateTime $startDateTime Start date and time for the job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
