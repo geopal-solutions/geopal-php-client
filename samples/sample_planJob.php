@@ -24,7 +24,7 @@ $employeeId = $params['employeeId'];
 
 /**
  * Start date and time for the job
- * @var \Date
+ * @var \DateTime
  */
 $startDateTime = $params['startDateTime'];
 

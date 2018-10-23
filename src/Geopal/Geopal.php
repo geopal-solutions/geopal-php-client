@@ -130,8 +130,10 @@ class Geopal
 
 
     /**
-     * @param $templateId
-     * @param array $params
+     * Allows creating a job in GeoPal
+     *
+     * @param integer $templateId The ID of the job template to create the job from
+     * @param array $params Set of information for job creation
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
