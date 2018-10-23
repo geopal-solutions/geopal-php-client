@@ -437,7 +437,7 @@ class Geopal
                 'force_job_resync' => $forceJobResync
             )
         )->json();
-        return $this->checkPropertyAndReturn($jobs, 'jobs');
+        return $this->checkPropertyAndReturn($jobs, 'job_workflow');
     }
 
     /**
@@ -462,7 +462,147 @@ class Geopal
                 'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time()
             )
         )->json();
-        return $this->checkPropertyAndReturn($jobs, 'jobs');
+        return $this->checkPropertyAndReturn($jobs, 'job_workflow');
+    }
+
+    /**
+     * Allows you to update a job field
+     *
+     * @param int $jobId The id of the job.
+     * @param int $templateFieldId The id of the template field
+     * @param null|\DateTime $doneAt The unix time the step was done at. Defaults to server time
+     * @param null $actionValueEntered The data entered for the step.
+     * @param null|bool $forceJobResync A boolean value (true/false, 1/0) to indicate if the job updated_on field should be set to current server time to force it to be re-synced at the next mobile sync event. Defaults to false.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobField($jobId, $templateFieldId, $doneAt = null, $actionValueEntered = null, $forceJobResync = false)
+    {
+        $jobs = $this->client->post(
+            'api/jobfields/update',
+            array(
+                'job_id' => $jobId,
+                'template_field_id' => $templateFieldId,
+                'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time(),
+                'action_value_entered' => $actionValueEntered,
+                'force_job_resync' => $forceJobResync
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job_field');
+    }
+
+    /**
+     * Allows you to update a job field file
+     *
+     * @param int $jobId The id of the job.
+     * @param int $templateFieldId The id of the template field
+     * @param array $file2Upload Contains the file uploaded. Max is 8MB
+     * @param null|\DateTime $doneAt The unix time the step was done at. Defaults to server time
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobFieldFile($jobId, $templateFieldId, $file2Upload, $doneAt = null)
+    {
+        $jobs = $this->client->post(
+            'api/jobfields/file',
+            array(
+                'job_id' => $jobId,
+                'template_field_id' => $templateFieldId,
+                'file2upload' => $file2Upload,
+                'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time()
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job_field');
+    }
+
+    /**
+     * Retrieves the standard excel report
+     *
+     * @param int $jobId The id of the job.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobReportStandardExcel($jobId)
+    {
+        $jobs = $this->client->get('api/jobreports/standardexcel',  array('job_id' => $jobId))->json();
+        return $this->checkPropertyAndReturn($jobs, 'template_report_id');
+    }
+
+    /**
+     * Retrieves the standard PDF report
+     *
+     * @param int $jobId The id of the job.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobReportStandardPDF($jobId)
+    {
+        $jobs = $this->client->get('api/jobreports/standardpdf',  array('job_id' => $jobId))->json();
+        return $this->checkPropertyAndReturn($jobs, 'template_report_id');
+    }
+
+    /**
+     * Retrieves a custom report in PDF format, the PDF is not returned in the response data,
+     * instead the PDF document is sent to the callback_url once generated.
+     *
+     * @param int $jobId The id of the job.
+     * @param int $templateReportId The id of the custom report to use
+     * @param string $callbackUrl A URL to send the generated PDF after it has been created
+     * @param array $callbackParams {optional} Additional parameters to add to the callback
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobReportCustomPDF($jobId, $templateReportId, $callbackUrl, $callbackParams = array())
+    {
+        $jobs = $this->client->post('api/jobreports/singlecustompdf',
+            array(
+                'job_id' => $jobId,
+                'template_report_id' => $templateReportId,
+                'callback_url' => $callbackUrl,
+                'callback_params' => $callbackParams
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'template_report_id');
+    }
+
+    /**
+     * Retrieves the standard jobs report in format specified.
+     * You must provide the job_template_id and either job_ids or a date range (date_from and date_to)
+     *
+     * @param int $jobTemplateId The id of the job template to generate the job report on
+     * @param array $params Set of the information about the report
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobReportStandardJob($jobTemplateId, $params)
+    {
+        $jobs = $this->client->get('api/jobreports/standardjobs',
+            array(
+                'job_template_id' => $jobTemplateId
+            ) + $params
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'standard_jobs');
+    }
+
+    /**
+     * Retrieves the standard jobs overview report in format specified
+     * You must provide the job_ids or a date range (date_from and date_to)
+     *
+     * @param array $params Set of the information about the report
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobReportStandardJobOverview($params)
+    {
+        $jobs = $this->client->get('api/jobreports/standardjobsoverview', $params)->json();
+        return $this->checkPropertyAndReturn($jobs, 'standard_jobs_overview');
     }
 
     /**
