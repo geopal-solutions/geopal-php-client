@@ -14,7 +14,7 @@ $client = new \Geopal\Geopal($employeeId, $privateKey);
  * The ID of the target job
  * @var integer
  */
-$jobId = 17915958;
+$jobId = $params['jobId'];
 
 /**
  * The ID of the job status to set the job to.
@@ -29,13 +29,13 @@ $jobId = 17915958;
  *
  * @var integer
  */
-$jobStatusId = 17915958;
+$jobStatusId = $params['jobStatusId'];
 
 /**
  * An optional message to include in the job notes
  * @var string
  */
-$message = "";
+$message = $params['message'];
 
 $result = $client->updateJobStatus($jobId, $jobStatusId, $message);
 

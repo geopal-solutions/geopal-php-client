@@ -50,8 +50,6 @@ class Geopal
      */
     protected function checkPropertyAndReturn($array, $key)
     {
-        print_r($array);
-
         if (is_array($array) && array_key_exists($key, $array) && array_key_exists('status', $array)) {
             if ($array['status'] == true) {
                 return $array[$key];
@@ -148,9 +146,11 @@ class Geopal
     }
 
     /**
-     * @param $jobId
-     * @param \DateTime $startDateTime
-     * @param $assignedToEmployeeId
+     * Allows for assigning a job to an employee.
+     *
+     * @param integer $jobId The ID of the target job
+     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @param integer $assignedToEmployeeId The ID of the employee to assign the job to
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -194,7 +194,7 @@ class Geopal
     /**
      * Returns the details of a job when a job is is received
      *
-     * @param integer $jobId Job Id
+     * @param integer $jobId The ID of the target job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -208,7 +208,7 @@ class Geopal
     /**
      * Returns the details of a job when a job identifier is received
      *
-     * @param integer $jobIdentifier Job Id
+     * @param integer $jobIdentifier The unique identifier of the target job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -575,7 +575,7 @@ class Geopal
      *
      * @param integer $jobId The ID of the target job
      * @param integer $employeeId The ID of the employee to assign the job to
-     * @param \Date $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @param \DateTime $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException

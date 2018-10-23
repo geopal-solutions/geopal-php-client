@@ -11,11 +11,11 @@ require 'settings.php';
 $client = new \Geopal\Geopal($employeeId, $privateKey);
 
 /**
- * Job Id
+ * The ID of the target job
  * @var integer
  */
-$params = 17915958;
+$jobId = $params['jobId'];
 
-$result = $client->getJobById($params);
+$result = $client->getJobById($jobId);
 
 print_r($result);
