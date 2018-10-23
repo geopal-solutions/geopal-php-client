@@ -10,3 +10,4 @@ Homestead.yaml
 Homestead.json
 after.sh
 aliases
+internal/

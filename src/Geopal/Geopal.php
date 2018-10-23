@@ -50,6 +50,8 @@ class Geopal
      */
     protected function checkPropertyAndReturn($array, $key)
     {
+        print_r($array);
+
         if (is_array($array) && array_key_exists($key, $array) && array_key_exists('status', $array)) {
             if ($array['status'] == true) {
                 return $array[$key];
@@ -187,9 +189,12 @@ class Geopal
     }
 
     /**
-     * @param $jobId
+     * Returns the details of a job
+     *
+     * @param integer $jobId Job Id
      * @return mixed
-     * @throws Exceptions\GeopalException
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function getJobById($jobId)
     {
@@ -211,6 +216,8 @@ class Geopal
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'jobs');
     }
+
+
 
     /**
      * @return mixed
