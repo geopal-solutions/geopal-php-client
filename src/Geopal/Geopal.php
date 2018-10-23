@@ -537,17 +537,20 @@ class Geopal
     }
 
     /**
-     * Valid status id's are:
+     * Allows for changing the current status of a job.
      *
-     * 6 for “Accepted”
+     * Valid status id's are:
      * 2 for “Rejected”
      * 3 for “Completed”
+     * 4 for “Deleted”
      * 5 for “In Progress”
+     * 6 for “Accepted”
      * 7 for “Incomplete”
+     * 11 for “Cancelled”
      *
-     * @param $jobId
-     * @param $newStatusId
-     * @param string $message
+     * @param integer $jobId The ID of the target job
+     * @param integer $newStatusId The ID of the job status to set the job to.
+     * @param string $message An optional message to include in the job notes
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -561,6 +564,29 @@ class Geopal
                 'job_status_id' => $newStatusId,
                 'message' => $message,
                 'updated_on' => time()
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($job, 'job');
+    }
+
+    /**
+     * Allows for planning a job to an employee.
+     * Planned jobs are not sent to field workers but can appear on the planner screen
+     *
+     * @param integer $jobId The ID of the target job
+     * @param integer $employeeId The ID of the employee to assign the job to
+     * @param \Date $startDateTime Start date and time for the job (YYYY-MM-DD HH:MI:SS)
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function planJob($jobId, $employeeId, $startDateTime){
+        $job = $this->client->post(
+            'api/jobs/plan',
+            array(
+                'job_id' => $jobId,
+                'employee_id' => $employeeId,
+                'start_date_time' => $startDateTime->format('Y-m-d H:i:s')
             )
         )->json();
         return $this->checkPropertyAndReturn($job, 'job');

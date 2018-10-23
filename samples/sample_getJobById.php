@@ -12,7 +12,6 @@ $client = new \Geopal\Geopal($employeeId, $privateKey);
 
 /**
  * Job Id
- *
  * @var integer
  */
 $params = 17915958;
