@@ -65,7 +65,7 @@ class Geopal
 
 
     /**
-     * @param  $client
+     * @param $client
      */
     public function setClient($client)
     {
@@ -115,7 +115,7 @@ class Geopal
     /**
      * Allows creating a job in GeoPal
      *
-     * @param integer $templateId The ID of the job template to create the job from
+     * @param int $templateId The ID of the job template to create the job from
      * @param array $params
      * @return mixed
      * @throws GeopalException
@@ -134,7 +134,7 @@ class Geopal
     /**
      * Allows creating a job in GeoPal
      *
-     * @param integer $templateId The ID of the job template to create the job from
+     * @param int $templateId The ID of the job template to create the job from
      * @param array $params Set of information for job creation
      * @return mixed
      * @throws GeopalException
@@ -152,9 +152,9 @@ class Geopal
     /**
      * Allows for assigning a job to an employee.
      *
-     * @param integer $jobId The ID of the target job
+     * @param int $jobId The ID of the target job
      * @param \DateTime $startDateTime Start date and time for the job
-     * @param integer $assignedToEmployeeId The ID of the employee to assign the job to
+     * @param int $assignedToEmployeeId The ID of the employee to assign the job to
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -175,8 +175,8 @@ class Geopal
     /**
      * Reassigns a job to another employee
      *
-     * @param integer $jobId The ID of the target job
-     * @param integer $employeeReassignedToId The ID of the employee to assign the job to
+     * @param int $jobId The ID of the target job
+     * @param int $employeeReassignedToId The ID of the employee to assign the job to
      * @param \DateTime $startDateTime Start date and time for the job
      * @return mixed
      * @throws GeopalException
@@ -189,7 +189,7 @@ class Geopal
             array(
                 'job_id' => $jobId,
                 'employee_reassigned_to_id' => $employeeReassignedToId,
-                'start_date_time' => $startDateTime->format('Y-m-d H:i:s')
+                'start_date_time' => ($startDateTime instanceof \DateTime) ? $startDateTime->format('Y-m-d H:i:s') : ''
             )
         )->json();
         return $this->checkPropertyAndReturn($job, 'job');
@@ -198,7 +198,7 @@ class Geopal
     /**
      * Allows for unassigning of an employee from a job.
      *
-     * @param integer $jobId The ID of the target job
+     * @param int $jobId The ID of the target job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -217,7 +217,7 @@ class Geopal
     /**
      * Returns the details of a job when a job is is received
      *
-     * @param integer $jobId The ID of the target job
+     * @param int $jobId The ID of the target job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -231,7 +231,7 @@ class Geopal
     /**
      * Returns the details of a job when a job identifier is received
      *
-     * @param integer $jobIdentifier The unique identifier of the target job
+     * @param int $jobIdentifier The unique identifier of the target job
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -247,8 +247,8 @@ class Geopal
      *
      * @param string|\DateTime $dateTimeFrom Date and time to list entries from. (YYYY-MM-DD HH:MI:SS)
      * @param string|\DateTime $dateTimeTo Date and time to list entries to.  (YYYY-MM-DD HH:MI:SS)
-     * @param integer|null $jobStatusId {optional} parameter which allows to filter by job status id
-     * @param integer|null $jobTemplateId {optional} parameter which allows to filter by job template id
+     * @param int|null $jobStatusId {optional} parameter which allows to filter by job status id
+     * @param int|null $jobTemplateId {optional} parameter which allows to filter by job template id
      * @param array|null $type {optional} Can be set to created_on, updated_on or completed_and_synced_date_time, assigned_date_time, defaults to updated_on. Created on is the time the job was created on the server, updated on is the time the job was updated on the server.
     completed_and_synced_date_time indicates when the job has fully synced and also marked as completed and requires version of geopal app >= 1.18.x
      * @return mixed
@@ -275,7 +275,7 @@ class Geopal
      * If passed doesn't exist yet it will create new one otherwise it will update contact entry using passed address arguments. Address arguments have prefix “address_”.
      * IMPORTANT: Either address_id or address_identifier are required.
      *
-     * @param integer $jobId The id of the job.
+     * @param int $jobId The id of the job.
      * @param array $address Set of the address information
      * @return mixed
      * @throws GeopalException
@@ -293,10 +293,77 @@ class Geopal
     }
 
     /**
-     * @param integer|null $justJobIds {optional} If set to 1 will just return job ids, otherwise it will return job ids and completed and synced date time
+     * Allows you to assign another existing Asset to a Job by its identifier
+     *
+     * @param int $jobId The id of the job.
+     * @param int $assetIdentifier The identifier of the asset to be assigned.
+     * @param null|string|\DateTime $updateOn A Unix timestamp of the date of the asset change
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobAsset($jobId, $assetIdentifier, $updateOn = null)
+    {
+        $jobs = $this->client->post(
+            'api/jobs/changeasset',
+            array(
+                'job_id' => $jobId,
+                'asset_identifier' => $assetIdentifier,
+                'updated_on' => is_null($updateOn) ? time() : (($updateOn instanceof \DateTime) ? $updateOn->format('Y-m-d H:i:s') : $updateOn)
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * Allows you to assign another Contact person to a Job.
+     * If person who do you assign job doesn't exist yet it will create new one, otherwise it will update contact entry using passed person arguments. Person arguments have prefix “person_”.
+     *
+     * @param integer $jobId The id of the job.
+     * @param array $person Set of the person's information
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobPerson($jobId, $person)
+    {
+        $jobs = $this->client->post(
+            'api/jobs/changeperson',
+            array(
+                'job_id' => $jobId
+            ) + $person
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * Allows you to assign another Customer to a Job.
+     * If customer who do you assign job doesn't exist yet it will create new one, otherwise it will update customer entry using passed person arguments. Customer arguments have prefix “customer_”.
+     *
+     * @param integer $jobId The id of the job.
+     * @param array $customer Set of the customer's information
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateJobCustomer($jobId, $customer)
+    {
+        $jobs = $this->client->post(
+            'api/jobs/changecustomer',
+            array(
+                'job_id' => $jobId
+            ) + $customer
+        )->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * Returns a detailed list of Jobs ordered by completed and synced date time
+     * 
+     * @param int|null $justJobIds {optional} If set to 1 will just return job ids, otherwise it will return job ids and completed and synced date time
      * @param \DateTime $syncCompleteDateTime {optional} Date Time (YYYY-mm-dd HH:mi:ss), if set will show records greater than or equal to the sync and complete date time
-     * @param integer $page {optional} The current page for the result set, defaults to 1
-     * @param integer $limit {optional} The total number of job returned, defaults to 50
+     * @param int $page {optional} The current page for the result set, defaults to 1
+     * @param int $limit {optional} The total number of job returned, defaults to 50
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -342,7 +409,7 @@ class Geopal
     /**
      * Gets job template by id
      *
-     * @param integer $templateId The ID of the target job template
+     * @param int $templateId The ID of the target job template
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -628,8 +695,8 @@ class Geopal
      * 7 for “Incomplete”
      * 11 for “Cancelled”
      *
-     * @param integer $jobId The ID of the target job
-     * @param integer $newStatusId The ID of the job status to set the job to.
+     * @param int $jobId The ID of the target job
+     * @param int $newStatusId The ID of the job status to set the job to.
      * @param string $message An optional message to include in the job notes
      * @return mixed
      * @throws GeopalException
@@ -653,8 +720,8 @@ class Geopal
      * Allows for planning a job to an employee.
      * Planned jobs are not sent to field workers but can appear on the planner screen
      *
-     * @param integer $jobId The ID of the target job
-     * @param integer $employeeId The ID of the employee to assign the job to
+     * @param int $jobId The ID of the target job
+     * @param int $employeeId The ID of the employee to assign the job to
      * @param \DateTime $startDateTime Start date and time for the job
      * @return mixed
      * @throws GeopalException
