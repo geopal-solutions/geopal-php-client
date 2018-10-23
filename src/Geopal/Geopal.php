@@ -189,7 +189,7 @@ class Geopal
     }
 
     /**
-     * Returns the details of a job
+     * Returns the details of a job when a job is is received
      *
      * @param integer $jobId Job Id
      * @return mixed
@@ -199,6 +199,20 @@ class Geopal
     public function getJobById($jobId)
     {
         $jobs = $this->client->get('api/jobs/get', array('job_id' => $jobId))->json();
+        return $this->checkPropertyAndReturn($jobs, 'job');
+    }
+
+    /**
+     * Returns the details of a job when a job identifier is received
+     *
+     * @param integer $jobIdentifier Job Id
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getJobByIdentifier($jobIdentifier)
+    {
+        $jobs = $this->client->get('api/jobs/getbyidentifier', array('job_identifier' => $jobIdentifier))->json();
         return $this->checkPropertyAndReturn($jobs, 'job');
     }
 
