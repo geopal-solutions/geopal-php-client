@@ -606,6 +606,8 @@ class Geopal
     }
 
     /**
+     * Returns a detailed list with all employees of the company.
+     *
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -645,16 +647,23 @@ class Geopal
 
     /**
      * Creates an employee
+     * IMPORTANT: At least one of the user permission parameters (administrator, web_user, etc...) has to be set, otherwise GeoPal will reject new entry with an error.
      *
-     * @param $username
-     * @param $password
-     * @param $identifier
-     * @param $email
-     * @param $mobileNumber
-     * @param $firstName
-     * @param $lastName
-     * @param bool $mobileEmployee
-     * @param bool $webEmployee
+     * @param string $username A unique username that will allow the employee to log in to GeoPal
+     * @param string $password A password to allow the employee to log in to GeoPal.
+     * @param string $email The new employee's e-mail address.
+     * @param string $firstName The new employee's first name.
+     * @param string $lastName The new employee's last name.
+     * @param string $mobileNumber {optional} The new employee's mobile phone number.
+     * @param string $identifier {optional} A unique identifier for the new employee.
+     * @param bool $administrator Indicate if a user is a administrator.
+     * @param bool $guestUser Indicate if a user is guest user.
+     * @param bool $mobileUser Indicate if a user is a mobile GeoPal app user.
+     * @param bool $portalUser Indicate if a user is a portal user.
+     * @param bool $webUser Indicate if a user is a web user.
+     * @param string $timezone The new employee's time zone. If not provided, the employer's time zone will be applied.
+     * @param array $employeeTeams An array of GeoPal team ID’s. The employee will be added to all corresponding teams.
+     * @param array $employeeGroups An array of GeoPal group (aka. “site”) ID’s. The employee will be added to all corresponding groups.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -662,26 +671,38 @@ class Geopal
     public function createEmployee(
         $username,
         $password,
-        $identifier,
         $email,
-        $mobileNumber,
         $firstName,
         $lastName,
-        $mobileEmployee = true,
-        $webEmployee = false
+        $mobileNumber = null,
+        $identifier = null,
+        $administrator = false,
+        $guestUser = false,
+        $mobileUser = true,
+        $portalUser = false,
+        $webUser = false,
+        $timezone = null,
+        $employeeTeams = array(),
+        $employeeGroups = array()
     ) {
         $employee = $this->client->post(
             'api/employees/create',
             array(
                 'username' => $username,
                 'password' => $password,
-                'identifier' => $identifier,
                 'email' => $email,
-                'mobile_number' => $mobileNumber,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
-                'mobile_user' => $mobileEmployee,
-                'web_user' => $webEmployee
+                'mobile_number' => $mobileNumber,
+                'identifier' => $identifier,
+                'administrator' => $administrator,
+                '$guestUser' => $guestUser,
+                'mobile_user' => $mobileUser,
+                'portal_user' => $portalUser,
+                'web_user' => $webUser,
+                'timezone' => $timezone,
+                'employee_teams' => $employeeTeams,
+                'employee_groups' => $employeeGroups
             )
         )->json();
         return $this->checkPropertyAndReturn($employee, 'employee_data');
@@ -963,6 +984,31 @@ class Geopal
     }
 
     /**
+     * Logs an employee in to GeoPal (Log In)
+     *
+     * @param string $username Username for the employee you wish to log in
+     * @param string $password Password for the employee you wish to log in
+     * @param string $imei {optional} IMEI number of current device
+     * @param string $phoneNumber {optional} Phone number of current device
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createEmployeeSession($username, $password, $imei = null, $phoneNumber = null)
+    {
+        $employee = $this->client->post(
+            'api/employees/login',
+            array(
+                'username' => $username,
+                'password' => $password,
+                'imei' => $imei,
+                'phone_number' => $phoneNumber
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'employee');
+    }
+
+    /**
      * Finds an employee based on her username and password
      *
      * @param $username
@@ -984,14 +1030,43 @@ class Geopal
     }
 
     /**
-     * Updates details of an employee
+     * Returns the details of a single employee
      *
-     * @param $id
-     * @param $username
-     * @param $password
-     * @param $firstName
-     * @param $lastName
-     * @param $email
+     * @param integer $employeeId The employee's Id.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeById($employeeId)
+    {
+        $employee = $this->client->get('api/employees/getbyid', array('employee_id' => $employeeId))->json();
+        return $this->checkPropertyAndReturn($employee, 'employee_data');
+    }
+
+    /**
+     * Returns the details of a single employee
+     *
+     * @param integer $employeeIdentifier The employee's Identifier.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeByIdentifier($employeeIdentifier)
+    {
+        $employee = $this->client->get('api/employees/getbyidentifier', array('employee_identifier' => $employeeIdentifier))->json();
+        return $this->checkPropertyAndReturn($employee, 'employee_data');
+    }
+
+    /**
+     * Updates details of an employee
+     * At least one of the user permission parameters (administrator, web_user, etc...) has to be set, otherwise GeoPal will reject updating the entry with an error.
+     *
+     * @param int $id The target employee's GeoPal ID.
+     * @param string $username The employee's unique username for logging in to GeoPal.
+     * @param string $password The employee's password for logging in to GeoPal.
+     * @param string $firstName The employee's first name.
+     * @param string $lastName The employee's last name.
+     * @param string $email The employee's e-mail address.
      * @param array $params
      * @return mixed
      * @throws GeopalException
@@ -1018,13 +1093,14 @@ class Geopal
 
     /**
      * Updates details of an employee based on her identifier
+     * At least one of the user permission parameters (administrator, web_user, etc...) has to be set, otherwise GeoPal will reject updating the entry with an error.
      *
-     * @param $identifier
-     * @param $username
-     * @param $password
-     * @param $firstName
-     * @param $lastName
-     * @param $email
+     * @param string $identifier The employee's unique identifier.
+     * @param string $username The employee's unique username for logging in to GeoPal.
+     * @param string $password The employee's password for logging in to GeoPal.
+     * @param string $firstName The employee's first name.
+     * @param string $lastName The employee's last name.
+     * @param string $email The employee's e-mail address.
      * @param array $params
      * @return mixed
      * @throws GeopalException
@@ -1054,6 +1130,50 @@ class Geopal
             )
         )->json();
         return $this->checkPropertyAndReturn($employee, 'employee_data');
+    }
+
+    /**
+     * Allows starting and ending an employee shift in GeoPal
+     * If the stop_on parameter is not provided, GeoPal will still create the shift entry. This shift can later be ended by providing the same start_on value and a valid stop_on value in another call.
+     * Please note that existing shifts will be identified based on the start_on parameter and the requestor employee: an employee cannot end the shifts of another employee.
+     *
+     * @param string|\DateTime $startOn The Shift's start date and time as a unix timestamp
+     * @param \DateTime $stopOn The Shift's end date and time as a unix timestamp
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createEmployeeShift($startOn, $stopOn = null)
+    {
+        $employee = $this->client->post(
+            'api/employees/shift',
+            array(
+                'start_on' => ($startOn instanceof \DateTime) ? $startOn->format('Y-m-d H:i:s') : $startOn,
+                'stop_on' => ($stopOn instanceof \DateTime) ? $stopOn->format('Y-m-d H:i:s') : "",
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'employee');
+    }
+
+    /**
+     * Returns a list of shifts in the target time frame.
+     *
+     * @param \DateTime $dateTimeFrom Shifts starting at or after this point will be listed.
+     * @param \DateTime $dateTimeTo Shifts ending at or before this point will be listed.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeesShift($dateTimeFrom, $dateTimeTo)
+    {
+        $employee = $this->client->get(
+            'api/employees/shifts',
+            array(
+                'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : "",
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : "",
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'shifts');
     }
 
     /**

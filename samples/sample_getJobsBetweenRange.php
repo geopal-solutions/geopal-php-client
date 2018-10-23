@@ -1,6 +1,6 @@
 <?php
 /**
- * A script to test the Geopal's api/jobsearch/orderedsyncandcomplete
+ * A script to test the Geopal's api/jobsearch/ids
  *
  * @author Tarini Coll
  * Date: 23/10/2018
@@ -11,6 +11,24 @@ require 'settings.php';
 $client = new \Geopal\Geopal($employeeId, $privateKey);
 
 
-$result = $client->getJobsOrderedBySyncAndComplete();
+/**
+ * Date and time to list entries from.
+ * @var string
+ */
+//$dateTimeFrom = '2018-10-01 00:00:00';
+$dateTimeFrom = new \DateTime();
+$dateTimeFrom->sub(new DateInterval('P2D'));
+
+/**
+ * Date and time to list entries to.
+ * @var string
+ */
+//$dateTimeTo = '2018-10-30 00:00:00';
+$dateTimeTo = new \DateTime();
+$dateTimeTo->add(new DateInterval('P2D'));
+
+
+$result = $client->getJobsBetweenDateRange($dateTimeFrom, $dateTimeTo);
 
 print_r($result);
+
