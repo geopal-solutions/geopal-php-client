@@ -1170,10 +1170,81 @@ class Geopal
             'api/employees/shifts',
             array(
                 'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : "",
-                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : "",
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : ""
             )
         )->json();
         return $this->checkPropertyAndReturn($employee, 'shifts');
+    }
+
+    /**
+     * Returns a list of status log entries in the target time frame.
+     *
+     * @param \DateTime $dateTimeFrom Shifts starting at or after this point will be listed.
+     * @param \DateTime $dateTimeTo Shifts ending at or before this point will be listed.
+     * @param string $employeeIdentifier {optional} If provided, only results for this employee will be shown.
+     * @param int $employeeId {optional} If provided, only results for this employee will be shown
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeStatusLogs($dateTimeFrom, $dateTimeTo, $employeeIdentifier = null, $employeeId = null)
+    {
+        $employee = $this->client->get(
+            'api/employees/status_logs',
+            array(
+                'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : "",
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : "",
+                'employee_identifier' => $employeeIdentifier,
+                'employee_id' => $employeeId
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'employee_status_logs');
+    }
+
+    /**
+     * Get route data within a given time period, by an employee's GeoPal ID.
+     *
+     * @param int $employeeId The employee's GeoPal ID.
+     * @param \DateTime $dateTimeFrom The date and time to list the entries from.
+     * @param \DateTime $dateTimeTo The date and time to list the entries to.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeRouteReplayById($employeeId, $dateTimeFrom, $dateTimeTo)
+    {
+        $employee = $this->client->get(
+            'api/employees/routereplay',
+            array(
+                'employee_id' => $employeeId,
+                'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : "",
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : ""
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'tracks');
+    }
+
+    /**
+     * Get route data within a given time period, by an employee's Identifier.
+     *
+     * @param string $employeeIdentifier The employee's Identifier.
+     * @param \DateTime $dateTimeFrom The date and time to list the entries from.
+     * @param \DateTime $dateTimeTo The date and time to list the entries to.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getEmployeeRouteReplayByIdentifier($employeeIdentifier, $dateTimeFrom, $dateTimeTo)
+    {
+        $employee = $this->client->get(
+            'api/employees/routereplaybyidentifier',
+            array(
+                'employee_identifier' => $employeeIdentifier,
+                'date_time_from' => ($dateTimeFrom instanceof \DateTime) ? $dateTimeFrom->format('Y-m-d H:i:s') : "",
+                'date_time_to' => ($dateTimeTo instanceof \DateTime) ? $dateTimeTo->format('Y-m-d H:i:s') : ""
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($employee, 'tracks');
     }
 
     /**
