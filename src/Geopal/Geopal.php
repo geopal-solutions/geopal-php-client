@@ -822,6 +822,101 @@ class Geopal
     }
 
     /**
+     * Allows for updating an individual, user-defined field of an asset.
+     *
+     * @param string $assetIdentifier The identifier of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetId The Id of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetCompanyFieldId The Id of the corresponding Asset Company Field.
+     * @param string $actionValueEntered The value to set to the selected Asset Field.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateAssetField($assetIdentifier, $assetId, $assetCompanyFieldId, $actionValueEntered = null)
+    {
+        $asset = $this->client->post(
+            'api/assetfields/update',
+            array(
+                'asset_identifier' => $assetIdentifier,
+                'asset_id' => $assetId,
+                'asset_company_field_id' => $assetCompanyFieldId,
+                'action_value_entered' => $actionValueEntered
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($asset, 'asset_field');
+    }
+
+    /**
+     * Allows for uploading a file to an Asset Field.
+     *
+     * @param string $assetIdentifier The identifier of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetId The Id of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetCompanyFieldId The Id of the corresponding Asset Company Field.
+     * @param string $file2upload The absolute path to the file to be uploaded.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function uploadFileAssetField($assetIdentifier, $assetId, $assetCompanyFieldId, $file2upload)
+    {
+        $asset = $this->client->post(
+            'api/assetfields/file',
+            array(
+                'asset_identifier' => $assetIdentifier,
+                'asset_id' => $assetId,
+                'asset_company_field_id' => $assetCompanyFieldId,
+                'file2upload' => $file2upload
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($asset, 'asset_field');
+    }
+
+    /**
+     * Allows for updating an Asset Trigger.
+     *
+     * @param string $assetIdentifier The identifier of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetId The Id of the Asset. Either the Identifier or the Id must be provided.
+     * @param integer $assetCompanyTriggerId The Id of the corresponding Asset Company Trigger.
+     * @param \DateTime $assignedDateTime The unix timestamp indicating when the triggered Job should be assigned.
+    Defaults to the current date and time.
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateAssetTrigger($assetIdentifier, $assetId, $assetCompanyTriggerId, $assignedDateTime = null)
+    {
+        if (is_null($assignedDateTime)) {
+            $assignedDateTime = new \DateTime();
+        }
+
+        $asset = $this->client->post(
+            'api/assettriggers/update',
+            array(
+                'asset_identifier' => $assetIdentifier,
+                'asset_id' => $assetId,
+                'asset_company_trigger_id' => $assetCompanyTriggerId,
+                'assigned_date_time' => ($assignedDateTime instanceof \DateTime) ? $assignedDateTime->format('Y-m-d H:i:s') : ''
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($asset, 'asset_trigger');
+    }
+
+    /**
+     * Retrieves the standard assets report in format specified.
+     * Previously URI endpoint api/assetreports/standardassets had asset fields being quoted twice this new uri (api/assetreports/standard) has strip unnecessary quotes on by default.
+     *
+     * @param array $params Set of information to generate the report
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getAssetsReportStandard($params)
+    {
+        $asset = $this->client->get('api/assetreports/standard',$params)->json();
+        return $this->checkPropertyAndReturn($asset, 'standard_assets');
+    }
+
+    /**
      * @param $identifier
      * @param string $name
      * @param string $customerTypeName
@@ -1517,5 +1612,26 @@ class Geopal
             array('id' => $teamId)
         )->json();
         return $this->checkPropertyAndReturn($teamResponse, 'teams');
+    }
+
+    /**
+     * Retrieves An Uploaded File From The System. Any s3file id can be downloaded with this call.
+     *
+     * @param int $s3FileId The S3 file's ID in GeoPal.
+     * @param bool $json A boolean value to indicate if the file metadata should be returned instead of the file contents
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getFile($s3FileId, $json = false)
+    {
+        $file = $this->client->post(
+            'api/s3files/get',
+            array(
+                's3_file_id' => $s3FileId,
+                'json' => $json
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($file, 'S3file');
     }
 }
