@@ -458,9 +458,9 @@ class Geopal
             array(
                 'job_id' => $jobId,
                 'template_workflow_id' => $templateWorkflowId,
-                'file2upload' => $file2Upload,
                 'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time()
-            )
+            ),
+            $file2Upload
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'job_workflow');
     }
@@ -510,9 +510,9 @@ class Geopal
             array(
                 'job_id' => $jobId,
                 'template_field_id' => $templateFieldId,
-                'file2upload' => $file2Upload,
                 'done_at' => ($doneAt instanceof \DateTime) ? $doneAt->format('Y-m-d H:i:s') : time()
-            )
+            ),
+            $file2Upload
         )->json();
         return $this->checkPropertyAndReturn($jobs, 'job_field');
     }
@@ -864,9 +864,9 @@ class Geopal
             array(
                 'asset_identifier' => $assetIdentifier,
                 'asset_id' => $assetId,
-                'asset_company_field_id' => $assetCompanyFieldId,
-                'file2upload' => $file2upload
-            )
+                'asset_company_field_id' => $assetCompanyFieldId
+            ),
+            $file2upload
         )->json();
         return $this->checkPropertyAndReturn($asset, 'asset_field');
     }
@@ -1413,7 +1413,7 @@ class Geopal
     /**
      * Gets a company file by id
      *
-     * @param $companyFileId
+     * @param int $companyFileId The Company Upload file's ID in GeoPal.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1433,9 +1433,9 @@ class Geopal
     /**
      * Add Company file
      *
-     * @param $fileName
-     * @param $fileCategory
-     * @param $file
+     * @param string $fileName The name to use for the file in the Company File Upload section.
+     * @param string $fileCategory The category to use for the file in the Company File Upload section.
+     * @param array $file The absolute path to the file to be uploaded.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1456,10 +1456,10 @@ class Geopal
     /**
      * Update a company file by ID
      *
-     * @param $fileId
-     * @param null $newFileName
-     * @param null $newFileCategory
-     * @param null $newFile
+     * @param int $fileId The id of the company file to update.
+     * @param string $newFileName The new name to use for the file in the Company File Upload section. Pass null to use existing file name.
+     * @param string $newFileCategory The new category to use for the file in the Company File Upload section. Pass null to use existing file category.
+     * @param array $newFile The absolute path to the new file to be uploaded. Pass null to use existing file.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1479,9 +1479,34 @@ class Geopal
     }
 
     /**
+     * Updates an existing Company File Upload by id using a url to get the new file contents
+     *
+     * @param int $fileId The id of the company file to update.
+     * @param string $fileUrl The url to get the file from.
+     * @param string $newFileName {optional} The new name to use for the file in the Company File Upload section.
+     * @param string $newFileCategory {optional} The new category to use for the file in the Company File Upload section
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateCompanyFileFromURL($fileId, $fileUrl, $newFileName = null, $newFileCategory = null)
+    {
+        $companyFileUploadResponse = $this->client->post(
+            'api/companyfile/updatefromurl',
+            array(
+                'id' => $fileId,
+                'file_name' => $newFileName,
+                'file_category' => $newFileCategory,
+                'file_url' => $fileUrl
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($companyFileUploadResponse, 'company_file_uploads');
+    }
+
+    /**
      * Delete a company file by ID
      *
-     * @param $fileId
+     * @param int $fileId The id of the company file to delete.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1498,7 +1523,7 @@ class Geopal
     /**
      * Download a company file by ID
      *
-     * @param $fileId
+     * @param int $fileId The id of the company file to download.
      * @return Response
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -1531,7 +1556,7 @@ class Geopal
     /**
      * Get a team by its id
      *
-     * @param $teamId
+     * @param int $teamId The Team's ID in GeoPal.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1548,10 +1573,10 @@ class Geopal
     /**
      * Add a team
      *
-     * @param $teamName
-     * @param $quickTemplateId
-     * @param $employeeIds
-     * @param $templateIds
+     * @param string $teamName The Team name
+     * @param int $quickTemplateId Job template id for the team’s quick template.
+     * @param array $employeeIds Array of Id’s of the employees to add to the team.
+     * @param array $templateIds Array of Id’s of the job templates available to the team.
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1573,11 +1598,11 @@ class Geopal
     /**
      * Update a team by id
      *
-     * @param $teamId
-     * @param $teamName
-     * @param $quickTemplateId
-     * @param $employeeIds
-     * @param $templateIds
+     * @param int $teamId The id of the team to update
+     * @param string $teamName The Team name
+     * @param int $quickTemplateId Job template id for the team’s quick template
+     * @param array $employeeIds Array of Id’s of the employees to add to the team
+     * @param array $templateIds Array of Id’s of the job templates available to the team
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
@@ -1600,7 +1625,7 @@ class Geopal
    /**
      * Delete a team by id
      *
-     * @param $teamId
+     * @param int $teamId The id of the team to delete
      * @return mixed
      * @throws GeopalException
      * @throws \GuzzleHttp\Exception\GuzzleException
