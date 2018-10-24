@@ -1659,4 +1659,150 @@ class Geopal
         )->json();
         return $this->checkPropertyAndReturn($file, 'S3file');
     }
+
+    /**
+     * Retrieves all of the distribution lists (AKA: Contact Lists)
+     *
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLoneworkerAll()
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/distributionlists/getall',
+            array()
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'distribution_lists');
+    }
+
+    /**
+     * Retrieves all of the panic alarms
+     *
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLoneworkerPanicAlarmAll()
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/getall',
+            array()
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarms');
+    }
+
+    /**
+     * Retrieves a single panic alarm, you can pass the alarm_id as a query parameter or as part of the url
+     *
+     * @param int $alarmId The id of the panic alarm to get
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLoneworkerPanicAlarm($alarmId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/get',
+            array('alarm_id' => $alarmId)
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
+    /**
+     * Retrieves a single panic alarm for a given Employee Id,
+     * you can pass the employee_id as a query parameter or as part of the url
+     *
+     * @param int $employeeId The id of the employee to fetch the alarm for
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLoneworkerPanicAlarmByEmployee($employeeId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/getbyemployee',
+            array('employee_id' => $employeeId)
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
+    /**
+     * Add a new Panic Alarm
+     *
+     * @param int $employeeId The id of the employee the alarm is for
+     * @param int $distributionListId The id of the distribution list to use for the alarm
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function addLoneworkerPanicAlarm($employeeId, $distributionListId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/add',
+            array(
+                'employee_id' => $employeeId,
+                'distribution_list_id' => $distributionListId
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
+    /**
+     * Inserts or updates a panic alarm.
+     * Useful if you are not sure if the alarm already exists, if it does exist no error is thrown.
+     *
+     * @param int $employeeId The id of the employee the alarm is for
+     * @param int $distributionListId The id of the distribution list to use for the alarm
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function replaceLoneworkerPanicAlarm($employeeId, $distributionListId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/replace',
+            array(
+                'employee_id' => $employeeId,
+                'distribution_list_id' => $distributionListId
+            )
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
+    /**
+     * Deletes a given panic alarm by it’s id, you can pass the alarm_id as a query parameter or as part of the url.
+     *
+     * @param int $alarmId The id of the panic alarm to get
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteLoneworkerPanicAlarm($alarmId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/remove',
+            array('alarm_id' => $alarmId)
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
+    /**
+     * Deletes a given panic alarm by it’s employee_id,
+     * you can pass the employee_id as a query parameter or as part of the url
+     *
+     * @param $employeeId
+     * @return mixed
+     * @throws GeopalException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteLoneworkerPanicAlarmByEmployee($employeeId)
+    {
+        $loneworker = $this->client->get(
+            'api/loneworker/panicalarms/removebyemployee',
+            array('employee_id' => $employeeId)
+        )->json();
+        return $this->checkPropertyAndReturn($loneworker, 'panic_alarm');
+    }
+
 }
