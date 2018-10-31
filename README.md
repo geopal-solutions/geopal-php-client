@@ -3,6 +3,12 @@ geopal-php-client
 
 Change log
 
+
+2018-10-31
+v1.0.4
+* Added attachClient() setter for Guzzle client
+* Added apiEndpoint() for general API requests
+
 2018-08-21
 v1.0.3
 * Added new method getJobByIdentifier()
