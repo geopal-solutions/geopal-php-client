@@ -884,4 +884,31 @@ class Geopal
         )->json();
         return $this->checkPropertyAndReturn($teamResponse, 'teams');
     }
+
+    /**
+     * @param string $method HTTP method
+     * @param string $endpoint Geopal API endpoint
+     * @param mixed $params
+     * @param string $subset
+     * @return mixed
+     * @throws GeopalException
+     */
+    public function apiEndpoint($method, $endpoint, $params, $subset = '_no-property_')
+    {
+        $response = $this->client->{$method}($endpoint, $params);
+        $response = json_decode($response->getBody(), true);
+        $result = $this->checkPropertyAndReturn($response, $subset);
+
+        return $result;
+    }
+    /**
+     * @param int $employeeId
+     * @param string $privateKey
+     */
+    public function attachClient($employeeId, $privateKey)
+    {
+        $this->setEmployeeId($employeeId);
+        $this->setPrivateKey($privateKey);
+        $this->client = new Client($this->getEmployeeId(), $this->getPrivateKey());
+    }
 }
