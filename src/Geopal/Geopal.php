@@ -50,14 +50,19 @@ class Geopal
      */
     protected function checkPropertyAndReturn($array, $key)
     {
-        if (is_array($array) && array_key_exists($key, $array) && array_key_exists('status', $array)) {
+        if (is_array($array) && array_key_exists('status', $array)) {
             if ($array['status'] == true) {
-                return $array[$key];
+                if (array_key_exists($key, $array)) {
+                    return $array[$key];
+                } else {
+                    // if key does not exist probably there is no data for it so return everything
+                    return $array;
+                }
             } else {
-                throw new GeopalException(@$array['error_message'], @$array['error_code']);
+                throw new GeopalException($array['error_message'], $array['error_code']);
             }
         } elseif (is_array($array) && array_key_exists('status', $array)) {
-            throw new GeopalException(@$array['error_message'], @$array['error_code']);
+            throw new GeopalException($array['error_message'], $array['error_code']);
         } else {
             throw new GeopalException('Invalid data or key not found');
         }
